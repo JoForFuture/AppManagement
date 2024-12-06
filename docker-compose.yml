@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3307:3306"
+    networks:
+      - my-network
+
+  eurekaserverservice:
+    build:
+     context: ./EurekaServerService
+    ports:
+     - "8761:8761"
+    environment:
+     SPRING_DATASOURCE_URL: jdbc:mysql://db:3307/mydb
+     SPRING_DATASOURCE_USERNAME: user
+     SPRING_DATASOURCE_PASSWORD: userpassword
+    depends_on:
+     - db
+    networks:
+      - my-network
+
+  managementservice:
+    build:
+      context: ./SecuredWebEntryPoint-service
+    ports:
+      - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3307/mydb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: userpassword
+    depends_on:
+      - db
+    networks:
+      - my-network
+
+
+networks:
+  my-network:
