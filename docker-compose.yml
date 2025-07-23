@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: mysql:8.0
@@ -9,31 +7,17 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: userpassword
     ports:
-      - "3307:3306"
+      - "3307:3306"  # Esposta sulla porta 3307 dell'host
     networks:
       - my-network
 
   eurekaserverservice:
     build:
-     context: ./EurekaServerService
+      context: ./EurekaServerService
     ports:
-     - "8761:8761"
+      - "8761:8761"
     environment:
-     SPRING_DATASOURCE_URL: jdbc:mysql://db:3307/mydb
-     SPRING_DATASOURCE_USERNAME: user
-     SPRING_DATASOURCE_PASSWORD: userpassword
-    depends_on:
-     - db
-    networks:
-      - my-network
-
-  managementservice:
-    build:
-      context: ./SecuredWebEntryPoint-service
-    ports:
-      - "8082:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3307/mydb
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydb
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: userpassword
     depends_on:
@@ -41,6 +25,19 @@ services:
     networks:
       - my-network
 
+  securedwebentrypoint-service:
+    build:
+      context: ./SecuredWebEntryPoint-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: userpassword
+    depends_on:
+      - db
+    networks:
+      - my-network
 
 networks:
   my-network:
